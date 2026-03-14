@@ -6,8 +6,18 @@ const prismaClientSingleton = () => {
         ? process.env.DATABASE_URL
         : "file:./dev.db";
 
+    let url = dbUrl;
+    let authToken = undefined;
+
+    if (dbUrl.includes("?authToken=")) {
+        const parts = dbUrl.split("?authToken=");
+        url = parts[0];
+        authToken = parts[1];
+    }
+
     const adapter = new PrismaLibSql({
-        url: dbUrl
+        url: url,
+        authToken: authToken
     })
     return new PrismaClient({ adapter })
 }

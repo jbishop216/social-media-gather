@@ -1,0 +1,11 @@
+{
+  "name": "social-media-gather-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix social-media-gather",
+    "build": "npm run build --prefix social-media-gather",
+    "start": "npm run start --prefix social-media-gather",
+    "lint": "npm run lint --prefix social-media-gather"
+  }
+}

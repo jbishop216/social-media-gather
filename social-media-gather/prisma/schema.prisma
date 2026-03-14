@@ -1,0 +1,34 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  requests     DataRequest[]
+}
+
+model DataRequest {
+  id             String    @id @default(cuid())
+  platform       String    // Google, Facebook, LinkedIn, X, Apple, Amazon
+  status         String    @default("pending") // pending, requesting, waiting, ready, completed
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  archiveUrl     String?   // Used once the file is downloaded by investigator
+  statusNote     String?   // Human-readable status message
+  requestedAt    DateTime? // When the user initiated the platform request
+  estimatedReady DateTime? // Estimated completion based on platform
+  completedAt    DateTime? // When archive was uploaded
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([userId, platform])
+}

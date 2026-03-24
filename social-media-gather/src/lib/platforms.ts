@@ -34,7 +34,7 @@ export const platformConfig: Record<string, PlatformInfo> = {
     "Facebook": {
         name: "Facebook",
         description: "Posts, messages, friends, and profile information.",
-        icon: "https://static.xx.fbcdn.net/rsrc.php/v3/yD/r/5D8s-1k7OJU.png",
+        icon: "/facebook-logo.svg",
         exportUrl: "https://www.facebook.com/dyi/?referrer=yfi_settings",
         estimatedWaitTime: "Minutes to a few days",
         estimatedWaitMs: 24 * 60 * 60 * 1000, // 24 hours

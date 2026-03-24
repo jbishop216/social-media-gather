@@ -10,6 +10,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     const errorMessages: Record<string, string> = {
         missing_fields: "Please fill in all fields.",
         invalid_credentials: "Invalid email or password.",
+        server_error: "A server error occurred. Please try again later.",
     };
 
     return (

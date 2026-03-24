@@ -12,6 +12,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
         password_mismatch: "Passwords do not match.",
         password_too_short: "Password must be at least 8 characters.",
         email_exists: "An account with this email already exists.",
+        server_error: "A server error occurred. Please try again later.",
     };
 
     return (

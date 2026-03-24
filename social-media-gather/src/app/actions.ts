@@ -17,9 +17,15 @@ export async function loginClient(formData: FormData) {
         redirect("/login?error=missing_fields");
     }
 
-    const user = await prisma.user.findUnique({
-        where: { email },
-    });
+    let user;
+    try {
+        user = await prisma.user.findUnique({
+            where: { email },
+        });
+    } catch (err) {
+        console.error("[loginClient] Database error:", err);
+        redirect("/login?error=server_error");
+    }
 
     if (!user) {
         redirect("/login?error=invalid_credentials");
@@ -60,9 +66,15 @@ export async function registerClient(formData: FormData) {
     }
 
     // Check if user already exists
-    const existing = await prisma.user.findUnique({
-        where: { email },
-    });
+    let existing;
+    try {
+        existing = await prisma.user.findUnique({
+            where: { email },
+        });
+    } catch (err) {
+        console.error("[registerClient] Database error:", err);
+        redirect("/register?error=server_error");
+    }
 
     if (existing) {
         redirect("/register?error=email_exists");
@@ -70,25 +82,31 @@ export async function registerClient(formData: FormData) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    const user = await prisma.user.create({
-        data: {
-            name: name || null,
-            email,
-            passwordHash,
-        },
-    });
+    let user;
+    try {
+        user = await prisma.user.create({
+            data: {
+                name: name || null,
+                email,
+                passwordHash,
+            },
+        });
 
-    // Create default pending requests for all platforms
-    await Promise.all(
-        PLATFORMS.map((platform) =>
-            prisma.dataRequest.create({
-                data: {
-                    platform,
-                    userId: user.id,
-                },
-            })
-        )
-    );
+        // Create default pending requests for all platforms
+        await Promise.all(
+            PLATFORMS.map((platform) =>
+                prisma.dataRequest.create({
+                    data: {
+                        platform,
+                        userId: user.id,
+                    },
+                })
+            )
+        );
+    } catch (err) {
+        console.error("[registerClient] Database error:", err);
+        redirect("/register?error=server_error");
+    }
 
     const cookieStore = await cookies();
     cookieStore.set("auth_session", user.id, {

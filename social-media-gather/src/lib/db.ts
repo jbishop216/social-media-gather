@@ -9,7 +9,7 @@ const prismaClientSingleton = () => {
             : "file:./dev.db";
 
     let url = dbUrl;
-    let authToken = undefined;
+    let authToken: string | undefined = process.env.TURSO_AUTH_TOKEN;
 
     if (dbUrl.includes("?authToken=")) {
         const parts = dbUrl.split("?authToken=");

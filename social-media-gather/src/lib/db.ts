@@ -4,7 +4,9 @@ import { PrismaLibSql } from "@prisma/adapter-libsql"
 const prismaClientSingleton = () => {
     const dbUrl = process.env.DATABASE_URL && process.env.DATABASE_URL !== "undefined"
         ? process.env.DATABASE_URL
-        : "file:./dev.db";
+        : process.env.NODE_ENV === "production"
+            ? (() => { throw new Error("DATABASE_URL environment variable is not set") })()
+            : "file:./dev.db";
 
     let url = dbUrl;
     let authToken = undefined;

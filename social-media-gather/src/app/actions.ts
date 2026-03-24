@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import prisma from "@/lib/db";
+import type { User } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
@@ -82,7 +83,7 @@ export async function registerClient(formData: FormData) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    let user;
+    let user: User;
     try {
         user = await prisma.user.create({
             data: {

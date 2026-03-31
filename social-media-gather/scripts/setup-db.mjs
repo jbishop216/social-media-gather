@@ -7,19 +7,37 @@ if (!dbUrl) {
   process.exit(0);
 }
 
-// Parse combined URL format: libsql://host?authToken=token
+// Parse the URL to extract base URL and auth token
 let url = dbUrl;
 let authToken = undefined;
-if (dbUrl.includes("?authToken=")) {
-  const parts = dbUrl.split("?authToken=");
-  url = parts[0];
-  authToken = parts[1];
-}
 
 // Skip setup for local file databases
-if (url.startsWith("file:")) {
+if (dbUrl.startsWith("file:")) {
   console.log("Local file database, skipping remote DB setup.");
   process.exit(0);
+}
+
+try {
+  const urlObj = new URL(dbUrl);
+  // Standard format: ?authToken=jwt
+  authToken = urlObj.searchParams.get("authToken");
+  // Bracket format: ?authToken[jwt]= (some Turso URL formats)
+  if (!authToken) {
+    for (const [key] of urlObj.searchParams) {
+      if (key.startsWith("authToken[") && key.endsWith("]")) {
+        authToken = key.slice("authToken[".length, -1);
+        break;
+      }
+    }
+  }
+  url = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+} catch {
+  // If URL parsing fails, try the simple split approach
+  if (dbUrl.includes("?authToken=")) {
+    const parts = dbUrl.split("?authToken=");
+    url = parts[0];
+    authToken = parts[1];
+  }
 }
 
 const client = createClient({ url, authToken });

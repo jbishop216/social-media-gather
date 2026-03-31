@@ -7,12 +7,31 @@ const prismaClientSingleton = () => {
         : "file:./dev.db";
 
     let url = dbUrl;
-    let authToken = undefined;
+    let authToken: string | undefined = undefined;
 
-    if (dbUrl.includes("?authToken=")) {
-        const parts = dbUrl.split("?authToken=");
-        url = parts[0];
-        authToken = parts[1];
+    if (!dbUrl.startsWith("file:")) {
+        try {
+            const urlObj = new URL(dbUrl);
+            // Standard format: ?authToken=jwt
+            authToken = urlObj.searchParams.get("authToken") ?? undefined;
+            // Bracket format: ?authToken[jwt]= (some Turso URL formats)
+            if (!authToken) {
+                for (const [key] of urlObj.searchParams) {
+                    if (key.startsWith("authToken[") && key.endsWith("]")) {
+                        authToken = key.slice("authToken[".length, -1);
+                        break;
+                    }
+                }
+            }
+            url = `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`;
+        } catch {
+            // Fallback: try simple split
+            if (dbUrl.includes("?authToken=")) {
+                const parts = dbUrl.split("?authToken=");
+                url = parts[0];
+                authToken = parts[1];
+            }
+        }
     }
 
     const adapter = new PrismaLibSql({
